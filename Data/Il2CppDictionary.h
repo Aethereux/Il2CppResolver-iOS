@@ -20,7 +20,7 @@ struct Il2CppDictionary : Il2CppObject
     };
     
     MonoArray<int>* m_pBuckets;
-    MonoArray<Entry*>* m_pEntries;
+    MonoArray<Entry>* m_pEntries;
     int m_iCount;
     int m_iVersion;
     int m_iFreeList;
@@ -32,6 +32,11 @@ struct Il2CppDictionary : Il2CppObject
     FORCEINLINE Entry* GetEntry()
     {
         return (Entry*)m_pEntries->GetData();
+    }
+
+    FORCEINLINE int GetCount() const
+    {
+        return m_iCount;
     }
     
     TKey GetKeyByIndex(int iIndex)

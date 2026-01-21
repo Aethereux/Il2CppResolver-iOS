@@ -125,8 +125,11 @@ using MonoArray = Il2CppArray<T>;
 template <typename T>
 struct Il2CppList : Il2CppObject {
     MonoArray<T>* m_pListArray;
+    int m_iSize;
+    int m_iVersion;
     
     FORCEINLINE MonoArray<T>* ToArray() { return m_pListArray; }
+    FORCEINLINE int GetCount() { return m_iSize; }
 };
 
 template<typename T>
