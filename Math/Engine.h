@@ -2,7 +2,7 @@
 //  Matrix4x4.h
 //  Asura
 //
-//  Created by Euclid Jan Guillermo on 1/21/26.
+//  Created by Eux on 1/21/26.
 //
 
 #pragma once

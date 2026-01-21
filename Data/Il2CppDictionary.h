@@ -2,7 +2,7 @@
 //  Il2CppDictionary.h
 //  Asura
 //
-//  Created by Euclid Jan Guillermo on 1/21/26.
+//  Created by Eux on 1/21/26.
 //
 
 #include "Il2Cpp.h"

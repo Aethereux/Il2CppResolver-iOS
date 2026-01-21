@@ -30,7 +30,9 @@ struct Vector2
     FORCEINLINE Vector2(float data[]) : X(data[0]), Y(data[1]) {}
     FORCEINLINE Vector2(float value) : X(value), Y(value) {}
     FORCEINLINE Vector2(float x, float y) : X(x), Y(y) {}
-
+    
+    FORCEINLINE Vector2 operator-() { return Vector2(-X, -Y); }
+    
     /**
      * Constants for common vectors.
      * Unity 2D standard: Y is Up, X is Right.
@@ -193,20 +195,17 @@ struct Vector2
     FORCEINLINE struct Vector2& operator/=(const float rhs) { float inv = 1.0f / rhs; X *= inv; Y *= inv; return *this; }
     FORCEINLINE struct Vector2& operator+=(const Vector2 rhs) { X += rhs.X; Y += rhs.Y; return *this; }
     FORCEINLINE struct Vector2& operator-=(const Vector2 rhs) { X -= rhs.X; Y -= rhs.Y; return *this; }
+    // Friend Operators
+    friend FORCEINLINE Vector2 operator+(Vector2 lhs, const float rhs) { return Vector2(lhs.X + rhs, lhs.Y + rhs); }
+    friend FORCEINLINE Vector2 operator-(Vector2 lhs, const float rhs) { return Vector2(lhs.X - rhs, lhs.Y - rhs); }
+    friend FORCEINLINE Vector2 operator*(Vector2 lhs, const float rhs) { return Vector2(lhs.X * rhs, lhs.Y * rhs); }
+    friend FORCEINLINE Vector2 operator/(Vector2 lhs, const float rhs) { return Vector2(lhs.X / rhs, lhs.Y / rhs); }
+    friend FORCEINLINE Vector2 operator+(const float lhs, Vector2 rhs) { return Vector2(lhs + rhs.X, lhs + rhs.Y); }
+    friend FORCEINLINE Vector2 operator-(const float lhs, Vector2 rhs) { return Vector2(lhs - rhs.X, lhs - rhs.Y); }
+    friend FORCEINLINE Vector2 operator*(const float lhs, Vector2 rhs) { return Vector2(lhs * rhs.X, lhs * rhs.Y); }
+    friend FORCEINLINE Vector2 operator/(const float lhs, Vector2 rhs) { return Vector2(lhs / rhs.X, lhs / rhs.Y); }
+    friend FORCEINLINE Vector2 operator+(Vector2 lhs, const Vector2 rhs) { return Vector2(lhs.X + rhs.X, lhs.Y + rhs.Y); }
+    friend FORCEINLINE Vector2 operator-(Vector2 lhs, const Vector2 rhs) { return Vector2(lhs.X - rhs.X, lhs.Y - rhs.Y); }
+    friend FORCEINLINE bool operator==(const Vector2 lhs, const Vector2 rhs) { return lhs.X == rhs.X && lhs.Y == rhs.Y; }
+    friend FORCEINLINE bool operator!=(const Vector2 lhs, const Vector2 rhs) { return !(lhs == rhs); }
 };
-
-// Global Operators
-FORCEINLINE Vector2 operator-(Vector2 rhs) { return Vector2(-rhs.X, -rhs.Y); }
-FORCEINLINE Vector2 operator+(Vector2 lhs, const float rhs) { return lhs += rhs; }
-FORCEINLINE Vector2 operator-(Vector2 lhs, const float rhs) { return lhs -= rhs; }
-FORCEINLINE Vector2 operator*(Vector2 lhs, const float rhs) { return lhs *= rhs; }
-FORCEINLINE Vector2 operator/(Vector2 lhs, const float rhs) { return lhs /= rhs; }
-FORCEINLINE Vector2 operator+(const float lhs, Vector2 rhs) { return rhs += lhs; }
-FORCEINLINE Vector2 operator-(const float lhs, Vector2 rhs) { return rhs -= lhs; }
-FORCEINLINE Vector2 operator*(const float lhs, Vector2 rhs) { return rhs *= lhs; }
-FORCEINLINE Vector2 operator/(const float lhs, Vector2 rhs) { return rhs /= lhs; }
-FORCEINLINE Vector2 operator+(Vector2 lhs, const Vector2 rhs) { return lhs += rhs; }
-FORCEINLINE Vector2 operator-(Vector2 lhs, const Vector2 rhs) { return lhs -= rhs; }
-FORCEINLINE bool operator==(const Vector2 lhs, const Vector2 rhs) { return lhs.X == rhs.X && lhs.Y == rhs.Y; }
-FORCEINLINE bool operator!=(const Vector2 lhs, const Vector2 rhs) { return !(lhs == rhs); }
-
