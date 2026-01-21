@@ -1,16 +1,11 @@
-//
-//  Object.mm
-//  Asura
-//
-//  Created by Eux on 1/21/26.
-//
-
 #include "Object.h"
+#include "../Utils/Logger.hpp"
 
 namespace Object
 {
     void Initialize()
     {
+        LOG_INFO("Initializing Object...");
         ResolveFunction(ObjectFunctions.Destroy, ResolveCall(UNITY_OBJECT_DESTROY));
         ObjectFunctions.FindObjectsOfType = ResolveCall(UNITY_OBJECT_FINDOBJECTSOFTYPE);
         ResolveFunction(ObjectFunctions.GetName, ResolveCall(UNITY_OBJECT_GETNAME));

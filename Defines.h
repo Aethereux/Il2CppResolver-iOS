@@ -8,7 +8,7 @@
 #pragma once
 
 #include "Utils/Memory.h"
-#include "VMTHook.h"
+#include "Utils/VMTHook.h"
 
 #include <string>
 #include <codecvt>

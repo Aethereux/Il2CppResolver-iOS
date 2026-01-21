@@ -14,6 +14,7 @@ FORCEINLINE void* ResolveCall(const char* m_Name)
     if (!Functions.ResolveFunction)
         return nullptr;
     
+    LOG_DEBUG("Resolving function: %s", m_Name);
     return Functions.ResolveFunction(m_Name);
 }
 

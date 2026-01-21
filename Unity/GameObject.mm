@@ -1,16 +1,11 @@
-//
-//  GameObject.mm
-//  Asura
-//
-//  Created by Eux on 1/21/26.
-//
-
 #include "GameObject.h"
 #include "Component.h"
 #include "Transform.h"
+#include "../Utils/Logger.hpp"
 
 void GameObject::Initialize()
 {
+    LOG_INFO("Initializing GameObject...");
     ResolveFunction(GameObjectFunctions.AddComponent, ResolveCall(UNITY_GAMEOBJECT_ADDCOMPONENT));
     ResolveFunction(GameObjectFunctions.CreatePrimitive, ResolveCall(UNITY_GAMEOBJECT_CREATEPRIMITIVE));
     ResolveFunction(GameObjectFunctions.Find, ResolveCall(UNITY_GAMEOBJECT_FIND));

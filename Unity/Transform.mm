@@ -1,16 +1,11 @@
-//
-//  Transform.mm
-//  Asura
-//
-//  Created by Eux on 1/21/26.
-//
-
 #include "Transform.h"
+#include "../Utils/Logger.hpp"
 
 namespace Transform
 {
     void Initialize()
     {
+        LOG_INFO("Initializing Transform...");
         ResolveFunction(TransformFunctions.GetParent, ResolveCall(UNITY_TRANSFORM_GETPARENT));
         ResolveFunction(TransformFunctions.GetRoot, ResolveCall(UNITY_TRANSFORM_GETROOT));
         ResolveFunction(TransformFunctions.GetChild, ResolveCall(UNITY_TRANSFORM_GETCHILD));

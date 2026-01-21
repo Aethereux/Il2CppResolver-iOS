@@ -5,7 +5,8 @@
 //  Created by Eux on 1/21/26.
 //
 
-#pragma once
+#ifndef ASURA_GLOBALS_H
+#define ASURA_GLOBALS_H
 
 #include "Utils/Memory.h"
 
@@ -19,10 +20,11 @@ struct Il2CppMethodInfo;
 struct Il2CppPropertyInfo;
 struct Il2CppString;
 
+static IMemoryUtils::DyldInfo UnityFramework;
 struct Globals_t
 {
-    IMemoryUtils::DyldInfo UnityFramework = nullptr; // Game Base
     void* GameBase;
+    bool bDebugMode = false;
 };
 
 struct Functions_t
@@ -71,3 +73,4 @@ struct Functions_t
 inline Globals_t Globals;
 inline Functions_t Functions;
 
+#endif // ASURA_GLOBALS_H

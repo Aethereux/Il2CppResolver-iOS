@@ -4,6 +4,7 @@
 //
 //  Created by Eux on 1/21/26.
 //
+#include "Utils/Logger.hpp"
 #include "Resolver.h"
 #include "Defines.h"
 #include <dlfcn.h>
@@ -67,20 +68,27 @@ bool ResolveExport_Boolean(void** m_Address, const char* m_Name)
 
 bool InitializeUnityAPI(const char* BinaryName)
 {
-    Globals.UnityFramework = IMemoryUtils::GetDyldInfo(BinaryName);
+    UnityFramework = IMemoryUtils::GetDyldInfo(BinaryName);
     bool m_InitExportResolved = false;
+    
+    LOG_INFO("Resolving exports for binary: %s", BinaryName);
+    
     for (int i = 0; m_eExportObfuscationType::MAX > i; ++i)
     {
         m_ExportObfuscation = static_cast<m_eExportObfuscationType>(i);
         if (ResolveExport(IL2CPP_INIT_EXPORT))
         {
             m_InitExportResolved = true;
+            LOG_INFO("Export obfuscation resolved. Type index: %d", i);
             break;
         }
     }
     
     if (!m_InitExportResolved)
+    {
+        LOG_ERROR("Failed to resolve %s. Obfuscation check failed.", IL2CPP_INIT_EXPORT);
         return false;
+    }
     
     std::unordered_map<const char*, void**> m_ExportMap =
     {
@@ -113,10 +121,17 @@ bool InitializeUnityAPI(const char* BinaryName)
     
     for (auto& m_ExportPair : m_ExportMap)
     {
+        LOG_DEBUG("Resolving export: %s", m_ExportPair.first);
         if (!ResolveExport_Boolean(m_ExportPair.second, &m_ExportPair.first[0]))
-            return false;
+        {
+             LOG_ERROR("Failed to resolve export: %s", m_ExportPair.first);
+             return false;
+        }
+        LOG_DEBUG("Resolved %s -> %p", m_ExportPair.first, *m_ExportPair.second);
     }
     
+    LOG_INFO("Exports resolved successfully. Initializing Unity Wrappers...");
+
     // Unity APIs
     Camera::Initialize();
     Component::Initialize();
@@ -127,30 +142,25 @@ bool InitializeUnityAPI(const char* BinaryName)
     return true;
 }
 
-bool Il2CppResolver::Init(bool m_WaitForModule, int m_MaxSecondsWait, const char *dir)
+bool Il2CppResolver::Init(const char *dir, bool m_DebugMode)
 {
-   
-    if (m_WaitForModule)
-    {
-        int m_SecondsWaited = 0;
-        while (!Globals.GameBase)
-        {
-            if (m_SecondsWaited >= m_MaxSecondsWait)
-                return false;
-
-            Globals.GameBase = dlopen(dir, RTLD_LAZY);
-            ++m_SecondsWaited;
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-        }
-    }
-    else
-        Globals.GameBase = dlopen(dir, RTLD_LAZY);
+    Globals.bDebugMode = m_DebugMode;
     
+    LOG_INFO("Initializing Il2CppResolver with DebugMode: %d", m_DebugMode);
     if (Globals.GameBase == nullptr)
+    {
+        LOG_ERROR("Failed to dlopen module: %s", dir);
         return false;
+    }
     
-    if (!InitializeUnityAPI(dir))
-        return false;
+    LOG_INFO("Module %s loaded at: %p", dir, Globals.GameBase);
 
+    if (!InitializeUnityAPI(dir))
+    {
+        LOG_ERROR("Failed to initialize Unity API");
+        return false;
+    }
+
+    LOG_INFO("Il2CppResolver Initialization Complete.");
     return true;
 }
