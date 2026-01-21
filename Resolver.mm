@@ -164,3 +164,11 @@ bool Il2CppResolver::Init(const char *dir, bool m_DebugMode)
     LOG_INFO("Il2CppResolver Initialization Complete.");
     return true;
 }
+
+/* Usage:
+ENTRY_POINT void Init() {
+    CallAfterSeconds(2) {
+        Il2CppResolver::Init();
+    });
+}
+*/

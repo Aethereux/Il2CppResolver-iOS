@@ -59,11 +59,6 @@ struct FMath
         const float Result = X - IntPortion;
         return Result;
     }
-
-    // =========================================================================
-    // Trigonometry (Optimized)
-    // =========================================================================
-
     static FORCEINLINE float Sin(float Value) { return sinf(Value); }
     static FORCEINLINE float Cos(float Value) { return cosf(Value); }
     static FORCEINLINE float Tan(float Value) { return tanf(Value); }
@@ -102,10 +97,6 @@ struct FMath
         float p = ((((-2.6051615e-07f * y2 + 2.4760495e-05f) * y2 - 0.0013888378f) * y2 + 0.041666638f) * y2 - 0.5f) * y2 + 1.0f;
         *ScalarCos = sign * p;
     }
-
-    // =========================================================================
-    // Randomness
-    // =========================================================================
 
     static FORCEINLINE int32 Rand() { return rand(); }
     static FORCEINLINE void RandInit(int32 Seed) { srand(Seed); }

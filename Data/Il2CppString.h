@@ -8,7 +8,6 @@
 #pragma once
 #include <cstdint>
 #include "Il2Cpp.h"
-#include "Il2CppArray.h"
 #include "../Globals.h"
 
 /*
@@ -70,5 +69,5 @@ namespace String {
         return New(&m_String[0]);
     }
 }
-template<typename T>
-using MonoString = Il2CppList<T>;
+
+using MonoString = Il2CppString;

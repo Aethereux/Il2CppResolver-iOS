@@ -10,7 +10,6 @@
 
 namespace Il2CppResolver
 {
-    // Call This
     static inline const char* IL2CPP_FRAMEWORK(const char* NAME) {
         NSString *appPath = [[NSBundle mainBundle] bundlePath];
         NSString *binaryPath = [NSString stringWithFormat:@"%s", NAME];
@@ -24,6 +23,7 @@ namespace Il2CppResolver
         }
         return [binaryPath UTF8String];
     }
-
+    
+    // Call This
     bool Init(const char *dir = "UnityFramework", bool m_DebugMode = true);
 }
