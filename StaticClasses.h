@@ -23,11 +23,18 @@ template<StringLiteral Namespace, StringLiteral Name>
 inline Il2CppClass* GetCachedClass() {
     static Il2CppClass* Cached = nullptr;
     if (!Cached)
-        Cached = UnityClass::GetFromName(Image::GetByName("Assembly-CSharp"), Namespace.Chars, Name.Chars);
-    if (!Cached)
-        Cached = UnityClass::Find(Name.Chars);
+    {
+        // Fast Lookup (Assembly-CSharp)
+        Il2CppImage* img = Image::GetByName("Assembly-CSharp");
+        if(img) Cached = UnityClass::GetFromName(img, Namespace.Chars, Name.Chars);
+        
+        // Fallback: Search ALL Assemblies
+        if (!Cached)
+            Cached = UnityClass::Find(Namespace.Chars, Name.Chars);
+    }
     return Cached;
 }
+
 
 namespace StaticClasses
 {
