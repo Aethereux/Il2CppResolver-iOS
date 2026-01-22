@@ -51,7 +51,7 @@ struct Functions_t
 //    void* Free = nullptr; // unused
 
     Il2CppClass* (*ImageGetClass)(void*, size_t) = nullptr;
-    size_t* (*ImageGetClassCount)(void*) = nullptr;
+    size_t (*ImageGetClassCount)(void*) = nullptr;
 
     void* (*ResolveFunction)(const char*) = nullptr;
 

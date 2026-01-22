@@ -33,11 +33,6 @@ struct Il2CppDictionary : Il2CppObject
     {
         return (Entry*)m_pEntries->GetData();
     }
-
-    FORCEINLINE int GetCount() const
-    {
-        return m_iCount;
-    }
     
     TKey GetKeyByIndex(int iIndex)
     {

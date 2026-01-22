@@ -36,4 +36,17 @@ namespace Image
         // If no match is found, return nullptr
         return nullptr;
     }
+
+    FORCEINLINE size_t GetClassCount(Il2CppImage* image)
+    {
+        if (!Functions.ImageGetClassCount) return 0;
+        return Functions.ImageGetClassCount(image);
+    }
+
+    FORCEINLINE Il2CppClass* GetClass(Il2CppImage* image, size_t index)
+    {
+        if (!Functions.ImageGetClass) return nullptr;
+        return Functions.ImageGetClass(image, index);
+    }
 }
+

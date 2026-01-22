@@ -195,7 +195,7 @@ struct Vector2
     FORCEINLINE struct Vector2& operator/=(const float rhs) { float inv = 1.0f / rhs; X *= inv; Y *= inv; return *this; }
     FORCEINLINE struct Vector2& operator+=(const Vector2 rhs) { X += rhs.X; Y += rhs.Y; return *this; }
     FORCEINLINE struct Vector2& operator-=(const Vector2 rhs) { X -= rhs.X; Y -= rhs.Y; return *this; }
-    // Friend Operators
+
     friend FORCEINLINE Vector2 operator+(Vector2 lhs, const float rhs) { return Vector2(lhs.X + rhs, lhs.Y + rhs); }
     friend FORCEINLINE Vector2 operator-(Vector2 lhs, const float rhs) { return Vector2(lhs.X - rhs, lhs.Y - rhs); }
     friend FORCEINLINE Vector2 operator*(Vector2 lhs, const float rhs) { return Vector2(lhs.X * rhs, lhs.Y * rhs); }

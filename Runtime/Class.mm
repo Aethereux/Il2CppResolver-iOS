@@ -74,6 +74,26 @@ Il2CppClass* UnityClass::Find(const char* m_pName)
     return m_pClassReturn;
 }
 
+Il2CppClass* UnityClass::Find(const char* m_pNamespace, const char* m_pName)
+{
+    size_t m_sAssembliesCount = 0;
+    Il2CppAssembly** m_pAssemblies = Domain::GetAssemblies(&m_sAssembliesCount);
+    if (!m_pAssemblies || m_sAssembliesCount == 0) return nullptr;
+
+    for (size_t i = 0; i < m_sAssembliesCount; ++i)
+    {
+        Il2CppAssembly* m_pAssembly = m_pAssemblies[i];
+        if (!m_pAssembly || !m_pAssembly->m_pImage) continue;
+
+        // Try to get the class from this assembly
+        Il2CppClass* m_pClass = GetFromName(m_pAssembly->m_pImage, m_pNamespace, m_pName);
+        if (m_pClass)
+            return m_pClass;
+    }
+
+    return nullptr;
+}
+
 void* UnityClass::GetMethodPointer(const char* m_pClassName, const char* m_pMethodName, std::initializer_list<const char*> m_vNames)
 {
     Il2CppClass* m_pClass = Find(m_pClassName);
@@ -169,6 +189,7 @@ Il2CppClass* UnityClass::FilterClass(std::vector<Il2CppClass*>* m_pClasses, std:
 
     return m_pReturn;
 }
+
 void* UnityClass::FilterClassToMethodPointer(std::vector<Il2CppClass*>* m_pClasses, const char* m_pMethodName, int m_iArgs)
 {
     void* m_pMethodPointer = nullptr;
@@ -183,4 +204,47 @@ void* UnityClass::FilterClassToMethodPointer(std::vector<Il2CppClass*>* m_pClass
             break;
     }
     return m_pMethodPointer;
+}
+
+void UnityClass::FetchClasses(std::vector<Il2CppClass*>* m_pVector, const char* m_pModuleName, const char* m_pNamespace)
+{
+    m_pVector->clear();
+
+    if (!Functions.ImageGetClassCount || !Functions.ImageGetClass)
+        return;
+    
+    size_t m_sAssembliesCount = 0U;
+    Il2CppAssembly** m_pAssemblies = Domain::GetAssemblies(&m_sAssembliesCount);
+    if (!m_pAssemblies || 0U >= m_sAssembliesCount) return;
+
+    Il2CppImage* m_pImage = nullptr;
+    for (size_t i = 0U; m_sAssembliesCount > i; ++i)
+    {
+        Il2CppAssembly* m_pAssembly = m_pAssemblies[i];
+        if (!m_pAssembly || !m_pAssembly->m_pImage || UTF8Utils::Strcmp(m_pAssembly->m_pImage->m_pNameNoExt, m_pModuleName) != 0)
+            continue;
+
+        m_pImage = m_pAssembly->m_pImage;
+        break;
+    }
+
+    if (m_pImage)
+    {
+        size_t m_sClassesCount = Functions.ImageGetClassCount(m_pImage);
+        for (size_t i = 0U; m_sClassesCount > i; ++i)
+        {
+            Il2CppClass* m_pClass = Functions.ImageGetClass(m_pImage, i);
+            if (m_pNamespace)
+            {
+                if (m_pNamespace[0] == '\0')
+                {
+                    if (m_pClass->m_pNamespace[0] != '\0')
+                        continue;
+                }
+                else if (UTF8Utils::Strcmp(m_pClass->m_pNamespace, m_pNamespace) != 0)
+                    continue;
+            }
+            m_pVector->emplace_back(m_pClass);
+        }
+    }
 }

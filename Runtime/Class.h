@@ -54,6 +54,7 @@ namespace UnityClass
 
     void FetchMethods(Il2CppClass* m_pClass, std::vector<Il2CppMethodInfo*>* m_pVector, void* m_pMethodIterator = nullptr);
     Il2CppClass* Find(const char* m_pName);
+    Il2CppClass* Find(const char* m_pNamespace, const char* m_pName);
     void* GetMethodPointer(const char* m_pClassName, const char* m_pMethodName, std::initializer_list<const char*> m_vNames);
     Il2CppClass* FilterClass(std::vector<Il2CppClass*>* m_pClasses, std::initializer_list<const char*> m_vNames, int m_iFoundCount = -1);
     void* FilterClassToMethodPointer(std::vector<Il2CppClass*>* m_pClasses, const char* m_pMethodName, int m_iArgs = -1);
@@ -154,7 +155,7 @@ namespace UnityClass
             if (!methodPointer)
                 return 0;
             
-            uint64_t rvaOffset = (uint64_t)Globals.UnityFramework.GetOffset(methodPointer); // VMAddr
+            uint64_t rvaOffset = (uint64_t)UnityFramework.GetOffset(methodPointer); // VMAddr
             return rvaOffset;
         }
         
