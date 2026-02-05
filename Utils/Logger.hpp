@@ -3,13 +3,13 @@
 #import <Foundation/Foundation.h>
 #include "../Globals.h"
 
-#define SUBSYTEM "com.asura.resolver"
+#define ASURA_SUBSYSTEM "com.asura.resolver"
 
-// Helper to create or access the OSLog category
 inline os_log_t GetLogger(const char* category) {
-    return os_log_create(SUBSYTEM, category);
+    return os_log_create(ASURA_SUBSYSTEM, category);
 }
 
+// Logging Macros
 #define LOG_TYPE(category, type, fmt, ...) \
     do { \
         if (Globals.bDebugMode) { \
@@ -22,7 +22,6 @@ inline os_log_t GetLogger(const char* category) {
 
 // Debug
 #define LOG_DEBUG(fmt, ...) LOG_TYPE("Debug", OS_LOG_TYPE_DEBUG, fmt, ##__VA_ARGS__)
-
 #define LOG_ERROR(fmt, ...) os_log_with_type(GetLogger("Error"), OS_LOG_TYPE_ERROR, fmt, ##__VA_ARGS__)
 #define LOG_FAULT(fmt, ...) os_log_with_type(GetLogger("Fault"), OS_LOG_TYPE_FAULT, fmt, ##__VA_ARGS__)
 

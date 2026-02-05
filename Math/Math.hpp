@@ -2,28 +2,18 @@
 
 #include <cmath>
 #include <cstdlib> 
-#include "../Utils/Macros.h"
-#include "../Utils/Core.h"
+#include "../Defines.h"
 
 #undef  PI
 #define PI                     (3.1415926535897932f)
 #define SMALL_NUMBER           (1.e-8f)
 #define KINDA_SMALL_NUMBER     (1.e-4f)
 #define BIG_NUMBER             (3.4e+38f)
-#define EULERS_NUMBER          (2.71828182845904523536f)
-#define UE_GOLDEN_RATIO        (1.6180339887498948482045868343656381f)
 #define FLOAT_NON_FRACTIONAL   (8388608.f)
 #define MAX_FLT                3.402823466e+38F
 
 #define INV_PI                 (0.31830988618f)
 #define HALF_PI                (1.57079632679f)
-
-#define UE_SQRT_2              (1.4142135623730950488016887242097f)
-#define UE_SQRT_3              (1.7320508075688772935274463415059f)
-#define UE_INV_SQRT_2          (0.70710678118654752440084436210485f)
-#define UE_INV_SQRT_3          (0.57735026918962576450914878050196f)
-#define UE_HALF_SQRT_2         (0.70710678118654752440084436210485f)
-#define UE_HALF_SQRT_3         (0.86602540378443864676372317075294f)
 
 #define DELTA                  (0.00001f)
 #define RAD_TO_DEG             (180.f / PI)
@@ -59,6 +49,7 @@ struct FMath
         const float Result = X - IntPortion;
         return Result;
     }
+
     static FORCEINLINE float Sin(float Value) { return sinf(Value); }
     static FORCEINLINE float Cos(float Value) { return cosf(Value); }
     static FORCEINLINE float Tan(float Value) { return tanf(Value); }
@@ -66,7 +57,6 @@ struct FMath
     static FORCEINLINE float Acos(float Value) { return acosf((Value < -1.f) ? -1.f : ((Value < 1.f) ? Value : 1.f)); }
     static FORCEINLINE float Atan(float Value) { return atanf(Value); }
     
-    // Implemented in Math.mm (Minimax Approximation)
     static float Atan2(float Y, float X);
 
     static FORCEINLINE float Sqrt(float Value) { return sqrtf(Value); }

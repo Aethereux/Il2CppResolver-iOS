@@ -135,5 +135,6 @@ struct Vector3
     }
 };
 
+// Global operator for float * Vector3
 FORCEINLINE Vector3 operator*(float lhs, const Vector3& rhs) { return rhs * lhs; }
 

@@ -27,31 +27,50 @@ To get a C string from a monoString, call ToCString.
 struct Il2CppString : Il2CppObject
 {
     int   length;
-    char  chars[1];
+    char16_t  chars[1];
 
-    FORCEINLINE int GetLength() const
-    {
-        return length;
+    FORCEINLINE std::string ToCppString() const {
+        std::string ReturnVal;
+        ToUtf8(ReturnVal);
+        return ReturnVal;
     }
 
-    FORCEINLINE const char16_t* GetChars() const
-    {
-        return reinterpret_cast<const char16_t*>(chars);
+    FORCEINLINE const char* ToCString() const {
+        // thread_local prevents race conditions between different threads
+        static thread_local std::string buffer;
+        ToUtf8(buffer);
+        return buffer.c_str();
     }
 
-    FORCEINLINE std::string ToCppString() const
-    {
-        static std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
-        return convert.to_bytes(GetChars(), GetChars() + length);
-    }
-
-
-    FORCEINLINE const char* ToCString() const
-    {
-        static thread_local std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
-        static thread_local std::string temp;
-        temp = convert.to_bytes(GetChars(), GetChars() + length);
-        return temp.c_str();
+    void ToUtf8(std::string& ReturnVal) const {
+        ReturnVal.clear();
+        // If length is massive or negative, the offset is definitely wrong
+        if (length <= 0 || length > 10000) return;
+        ReturnVal.reserve(length * 3);
+        for (int i = 0; i < length; ++i) {
+            uint32_t codePoint = chars[i];
+            if (codePoint >= 0xD800 && codePoint <= 0xDBFF && i + 1 < length) {
+                uint32_t low = chars[i + 1];
+                if (low >= 0xDC00 && low <= 0xDFFF) {
+                    codePoint = ((codePoint - 0xD800) << 10) + (low - 0xDC00) + 0x10000;
+                    i++;
+                }
+            }
+            if (codePoint < 0x80) ReturnVal.push_back(static_cast<char>(codePoint));
+            else if (codePoint < 0x800) {
+                ReturnVal.push_back(static_cast<char>(0xC0 | (codePoint >> 6)));
+                ReturnVal.push_back(static_cast<char>(0x80 | (codePoint & 0x3F)));
+            } else if (codePoint < 0x10000) {
+                ReturnVal.push_back(static_cast<char>(0xE0 | (codePoint >> 12)));
+                ReturnVal.push_back(static_cast<char>(0x80 | ((codePoint >> 6) & 0x3F)));
+                ReturnVal.push_back(static_cast<char>(0x80 | (codePoint & 0x3F)));
+            } else {
+                ReturnVal.push_back(static_cast<char>(0xF0 | (codePoint >> 18)));
+                ReturnVal.push_back(static_cast<char>(0x80 | ((codePoint >> 12) & 0x3F)));
+                ReturnVal.push_back(static_cast<char>(0x80 | ((codePoint >> 6) & 0x3F)));
+                ReturnVal.push_back(static_cast<char>(0x80 | (codePoint & 0x3F)));
+            }
+        }
     }
 };
 

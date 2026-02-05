@@ -6,12 +6,15 @@
 //
 
 #pragma once
-#pragma once
 #include "Globals.h"
-#include "Defines.h"
 
 // Utils
-#include "Utils/Logger.hpp"
+#include "Utils/Helper.h"
+#include "Utils/Speck.h"
+#include "Utils/Memory.h"
+#include "Dumping/Helpers.h"
+//#include "Dumping/DumpTypeInfo.h" // Uncomment for Usage
+//#include "Dumping/DumpUnityClass.h"
 
 // Math
 #include "Math/Vector2.h"
@@ -32,23 +35,14 @@
 #include "Unity/Transform.h"
 #include "Unity/Camera.h"
 
+#include "Runtime/Domain.h"
+#include "Runtime/Image.h"
+#include "Runtime/Class.h"
+
+#include "StaticClasses.h"
 namespace Il2CppResolver
 {
-    static inline const char* IL2CPP_FRAMEWORK(const char* NAME) {
-        NSString *appPath = [[NSBundle mainBundle] bundlePath];
-        NSString *binaryPath = [NSString stringWithFormat:@"%s", NAME];
-        if ([binaryPath isEqualToString:@"UnityFramework"])
-        {
-            binaryPath = [appPath stringByAppendingPathComponent:@"Frameworks/UnityFramework.framework/UnityFramework"];
-        }
-        else
-        {
-            binaryPath = [appPath stringByAppendingPathComponent:binaryPath];
-        }
-        return [binaryPath UTF8String];
-    }
-    
     // Call This
     bool Init(const char *dir = "UnityFramework", bool m_DebugMode = true);
-    void DumpUnityClasses();
 }
+

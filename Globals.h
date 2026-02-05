@@ -31,6 +31,7 @@ struct Functions_t
 {
     // IL2CPP Exported Function Pointers
     Il2CppClass* (*ClassFromName)(void*, const char*, const char*) = nullptr;
+    bool (*ClassIsSubclassOf)(void*, void*, bool) = nullptr;
     
     Il2CppFieldInfo* (*ClassGetFields)(void*, void**) = nullptr;
     Il2CppFieldInfo* (*ClassGetFieldFromName)(void*, const char*) = nullptr;

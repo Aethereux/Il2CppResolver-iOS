@@ -6,8 +6,9 @@
 //
 
 #pragma once
-#include "../Utils/Macros.h"
+
 #include "../Globals.h"
+#include "../Utils/Macros.h"
 #include "../Utils/Logger.hpp"
 
 FORCEINLINE void* ResolveCall(const char* m_Name)

@@ -14,6 +14,11 @@
 #include <codecvt>
 #include <locale>
 
+// Application Defines
+#ifndef UNITY_VERSION_2022_3_8F1
+    // If Unity version is equal or greater than 2022.3.8f1 uncomment this define.
+    // #define UNITY_VERSION_2022_3_8F1
+#endif
 
 #define IL2CPP_INIT_EXPORT                                "il2cpp_init"
 #define IL2CPP_CLASS_FROM_NAME_EXPORT                    "il2cpp_class_from_name"
@@ -23,6 +28,7 @@
 #define IL2CPP_CLASS_GET_METHOD_FROM_NAME_EXPORT        "il2cpp_class_get_method_from_name"
 #define IL2CPP_CLASS_GET_PROPERTY_FROM_NAME_EXPORT        "il2cpp_class_get_property_from_name"
 #define IL2CPP_CLASS_GET_TYPE_EXPORT                    "il2cpp_class_get_type"
+#define IL2CPP_CLASS_IS_SUBCLASS_OF_EXPORT              "il2cpp_class_is_subclass_of"
 #define IL2CPP_DOMAIN_GET_EXPORT                        "il2cpp_domain_get"
 #define IL2CPP_DOMAIN_GET_ASSEMBLIES_EXPORT                "il2cpp_domain_get_assemblies"
 #define IL2CPP_FREE_EXPORT                                "il2cpp_free"

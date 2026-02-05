@@ -5,12 +5,31 @@
 //  Created by Eux on 1/21/26.
 //
 #pragma once
+
+#include "Domain.h"
 #include "../Data/Il2Cpp.h"
 #include "../Globals.h"
-#include "Domain.h"
+#include "../Utils/Logger.hpp"
+#include "../Utils/StringLiteral.h"
+#include "../Utils/Speck.h"
 
 namespace UnityClass
 {
+
+    FORCEINLINE bool IsChildOf(Il2CppClass* CurrentClass, Il2CppClass* TargetClass)
+    {
+        if (!CurrentClass || !TargetClass)
+            return false;
+        
+        if (!Functions.ClassIsSubclassOf)
+            return false;
+        
+        if (CurrentClass == TargetClass)
+            return true; // Don't waste resource by comparing same class in IsSubClassOf lol
+        
+        return Functions.ClassIsSubclassOf(CurrentClass, TargetClass, false);
+    }
+
     FORCEINLINE Il2CppFieldInfo* GetFields(Il2CppClass* m_pClass, void** m_pIterator)
     {
         if (!Functions.ClassGetFields)
@@ -149,17 +168,17 @@ namespace UnityClass
             return nullptr;
         }
         
-        FORCEINLINE uint64_t GetMethodPointerRVA(Il2CppClass* m_pClass, const char* m_pMethodName, int m_iArgs = -1)
+        FORCEINLINE uint64 GetMethodPointerRVA(Il2CppClass* m_pClass, const char* m_pMethodName, int m_iArgs = -1)
         {
             void* methodPointer = GetMethodPointer(m_pClass, m_pMethodName, m_iArgs);
             if (!methodPointer)
                 return 0;
             
-            uint64_t rvaOffset = (uint64_t)UnityFramework.GetOffset(methodPointer); // VMAddr
+            uint64 rvaOffset = (uint64)UnityFramework.GetOffset(methodPointer); // VMAddr
             return rvaOffset;
         }
         
-        FORCEINLINE uint64_t GetMethodPointerRVA(const char* m_pClassName, const char* m_pMethodName, int m_iArgs = -1) {
+        FORCEINLINE uint64 GetMethodPointerRVA(const char* m_pClassName, const char* m_pMethodName, int m_iArgs = -1) {
             Il2CppClass* m_pClass = Find(m_pClassName);
             if (m_pClass)
                 return GetMethodPointerRVA(m_pClass, m_pMethodName, m_iArgs);
@@ -167,7 +186,7 @@ namespace UnityClass
             return 0;
         }
         
-        FORCEINLINE const char* MethodGetParamName(Il2CppMethodInfo* m_pMethodInfo, uint32_t index)
+        FORCEINLINE const char* MethodGetParamName(Il2CppMethodInfo* m_pMethodInfo, uint32 index)
         {
             if (!Functions.MethodGetParamName)
                 return nullptr;
@@ -178,7 +197,7 @@ namespace UnityClass
             return Functions.MethodGetParamName(m_pMethodInfo, index);
         }
         
-        FORCEINLINE Il2CppType* GetMethodParamType(Il2CppMethodInfo* m_pMethodInfo, uint32_t index)
+        FORCEINLINE Il2CppType* GetMethodParamType(Il2CppMethodInfo* m_pMethodInfo, uint32 index)
         {
             if (!Functions.MethodGetParam)
                 return nullptr;
@@ -212,7 +231,34 @@ namespace UnityClass
     public:
         Il2CppObject m_Object;
         void* m_CachedPtr = nullptr;
+        
+        FORCEINLINE bool IsA(Il2CppClass* TargetClass)
+        {
+            // m_Object is the Il2CppObject, m_pClass is the class pointer
+            return UnityClass::IsChildOf(m_Object.m_pClass, TargetClass);
+        }
+        
+        FORCEINLINE int32 GetOffset(const std::string& Name) const
+        {
+            return UnityClass::Utils::GetFieldOffset(m_Object.m_pClass, Name.c_str());
+        }
 
+        template<typename Type>
+        FORCEINLINE Type* GetMemberByOffset(const uint32 Offset) const
+        {
+            return (Type*)((uint8_t*)this + Offset);
+        }
+
+        template<typename MemberType, auto& Name>
+        MemberType* GetMember() const // Unique per name, so its fast af
+        {
+            static int32_t Offset = -1;
+            if (Offset == -1) [[unlikely]]
+                Offset = GetOffset(std::string(Name.decrypt()));
+
+            return (MemberType*)((uint8_t*)this + Offset);
+        }
+        
         // Wrappers for namespace, ah...
         FORCEINLINE Il2CppFieldInfo* GetFields(void** m_pIterator)
         {
@@ -306,29 +352,6 @@ namespace UnityClass
                 return reinterpret_cast<void(*)(void*, T)>(pProperty->m_pSet->m_pMethodPointer)(this, m_tValue);
         }
 
-        template<typename T>
-        FORCEINLINE T GetMemberValue(int m_iOffset)
-        {
-            return *reinterpret_cast<T*>(reinterpret_cast<uintptr_t>(this) + m_iOffset);
-        }
-
-        template<typename T>
-        FORCEINLINE void SetMemberValue(int m_iOffset, T m_tValue)
-        {
-            *reinterpret_cast<T*>(reinterpret_cast<uintptr_t>(this) + m_iOffset) = m_tValue;
-        }
-
-        template<typename T>
-        FORCEINLINE T GetMemberValue(Il2CppFieldInfo* m_pField)
-        {
-            if (!m_pField || 0 > m_pField->m_iOffset)
-            {
-                T m_tDefault = {};
-                return m_tDefault;
-            }
-
-            return GetMemberValue<T>(m_pField->m_iOffset);
-        }
 
         template<typename T>
         FORCEINLINE void SetMemberValue(Il2CppFieldInfo* m_pField, T m_tValue)
@@ -338,140 +361,8 @@ namespace UnityClass
 
             SetMemberValue<T>(m_pField->m_iOffset, m_tValue);
         }
-
-        template<typename T>
-        FORCEINLINE T GetMemberValue(const char* m_pMemberName)
-        {
-            T tDefault = {};
-            if (!Functions.ClassGetFieldFromName)
-                return tDefault;
-            
-            Il2CppFieldInfo* pField = Functions.ClassGetFieldFromName(m_Object.m_pClass, m_pMemberName);
-            if (pField)
-            {
-                if (pField->m_iOffset >= 0) return *reinterpret_cast<T*>(reinterpret_cast<uintptr_t>(this) + pField->m_iOffset);
-            }
-            else
-                return GetPropertyValue<T>(m_pMemberName);
-
-            return tDefault;
-        }
-
-        template<typename T>
-        FORCEINLINE void SetMemberValue(const char* m_pMemberName, T m_tValue)
-        {
-            if (!Functions.ClassGetFieldFromName)
-                return;
-            
-            Il2CppFieldInfo* pField = Functions.ClassGetFieldFromName(m_Object.m_pClass, m_pMemberName);
-            if (pField)
-            {
-                if (pField->m_iOffset >= 0)
-                    *reinterpret_cast<T*>(reinterpret_cast<uintptr_t>(this) + pField->m_iOffset) = m_tValue;
-                return;
-            }
-
-            SetPropertyValue<T>(m_pMemberName, m_tValue);
-        }
-
-        template<typename T>
-        FORCEINLINE T GetObscuredViaOffset(int m_iOffset)
-        {
-            if (m_iOffset >= 0)
-            {
-                switch (sizeof(T))
-                {
-                    case sizeof(double) :
-                    {
-                        long long m_lKey = *reinterpret_cast<long long*>(reinterpret_cast<uintptr_t>(this) + m_iOffset);
-                        long long m_lValue = *reinterpret_cast<long long*>(reinterpret_cast<uintptr_t>(this) + m_iOffset + sizeof(m_lKey));
-
-                        m_lValue ^= m_lKey;
-                        return *reinterpret_cast<T*>(&m_lValue);
-                    }
-                    break;
-                    case sizeof(int) :
-                    {
-                        int m_iKey = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(this) + m_iOffset);
-                        int m_iValue = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(this) + m_iOffset + sizeof(m_iKey));
-
-                        m_iValue ^= m_iKey;
-                        return *reinterpret_cast<T*>(&m_iValue);
-                    }
-                    break;
-                    case sizeof(bool) :
-                    {
-                        unsigned char m_uKey = *reinterpret_cast<unsigned char*>(reinterpret_cast<uintptr_t>(this) + m_iOffset);
-                        int m_iValue = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(this) + m_iOffset + sizeof(m_uKey));
-
-                        m_iValue ^= m_uKey;
-                        return *reinterpret_cast<T*>(&m_iValue);
-                    }
-                    break;
-                }
-            }
-
-            T m_tDefault = { 0 };
-            return m_tDefault;
-        }
-
-        template<typename T>
-        FORCEINLINE T GetObscuredValue(const char* m_pMemberName)
-        {
-            if (!Functions.ClassGetFieldFromName)
-                return -1;
-            
-            Il2CppFieldInfo* m_pField = Functions.ClassGetFieldFromName(m_Object.m_pClass, m_pMemberName);
-            return GetObscuredViaOffset<T>(m_pField ? m_pField->m_iOffset : -1);
-        }
-
-        template<typename T>
-        FORCEINLINE void SetObscuredViaOffset(int m_iOffset, T m_tValue)
-        {
-            if (0 > m_iOffset)
-                return;
-
-            switch (sizeof(T))
-            {
-                case sizeof(double) :
-                {
-                    long long m_lKey = *reinterpret_cast<long long*>(reinterpret_cast<uintptr_t>(this) + m_iOffset);
-                    long long* m_pValue = reinterpret_cast<long long*>(reinterpret_cast<uintptr_t>(this) + m_iOffset + sizeof(m_lKey));
-
-                    *m_pValue = *reinterpret_cast<long long*>(&m_tValue) ^ m_lKey;
-                }
-                break;
-                case sizeof(int) :
-                {
-                    int m_iKey = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(this) + m_iOffset);
-                    int* m_pValue = reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(this) + m_iOffset + sizeof(m_iKey));
-
-                    *m_pValue = *reinterpret_cast<int*>(&m_tValue) ^ m_iKey;
-                }
-                break;
-                case sizeof(bool) :
-                {
-                    unsigned char m_uKey = *reinterpret_cast<unsigned char*>(reinterpret_cast<uintptr_t>(this) + m_iOffset);
-                    int* m_pValue = reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(this) + m_iOffset + sizeof(m_uKey));
-
-                    *m_pValue = *reinterpret_cast<int*>(&m_tValue) ^ m_uKey;
-                }
-                break;
-            }
-        }
-
-        template<typename T>
-        void SetObscuredValue(const char* m_pMemberName, T m_tValue)
-        {
-            if (!Functions.ClassGetFieldFromName)
-                return;
-            
-            Il2CppFieldInfo* m_pField = Functions.ClassGetFieldFromName(m_Object.m_pClass, m_pMemberName);
-            if (!m_pField)
-                return;
-
-            SetObscuredViaOffset<T>(m_pField->m_iOffset, m_tValue);
-        }
     };
 }
 
+#define GetMember(Type, Name) GetMember<Type, ES(Name)>()
+using namespace UnityClass;

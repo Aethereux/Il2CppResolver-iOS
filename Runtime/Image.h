@@ -5,8 +5,9 @@
 //  Created by Eux on 1/21/26.
 //
 #pragma once
-#include "../Data/Il2Cpp.h"
+
 #include "Domain.h"
+#include "../Data/Il2Cpp.h"
 #include "../Utils/StringUtils.h"
 #include "../Globals.h"
 

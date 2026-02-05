@@ -10,7 +10,8 @@
 #include "Math.hpp"
 #include "Vector3.h"
 #include <string.h>
-// Forward declaration
+
+
 struct Matrix4x4;
 struct Vector4
 {
@@ -76,9 +77,6 @@ struct Vector4
     inline bool operator!=(const Vector4& b) const { return !(*this == b); }
 };
 
-// -----------------------------------------------------------------------------
-// Simple Structs
-// -----------------------------------------------------------------------------
 struct Bounds
 {
     Vector3 m_vCenter;
@@ -132,10 +130,6 @@ struct Color
     static Color Black() { return Color(0,0,0,1); }
 };
 
-// -----------------------------------------------------------------------------
-// Matrix4x4
-// Note: Unity uses Column-Major memory layout.
-// -----------------------------------------------------------------------------
 struct Matrix4x4
 {
     union

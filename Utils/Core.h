@@ -1,6 +1,5 @@
 //
 //  Core.h
-//  AsuraFF
 //
 //  Created by Euclid Jan Guillermo on 1/15/26.
 //

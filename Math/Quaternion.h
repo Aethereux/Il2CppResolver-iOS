@@ -176,6 +176,7 @@ struct Quaternion
     }
 };
 
+// Global: Rotate Vector by Quaternion
 inline Vector3 operator*(const Quaternion& lhs, const Vector3& rhs)
 {
     float x = lhs.X * 2.0f;
