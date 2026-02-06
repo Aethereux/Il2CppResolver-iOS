@@ -6,10 +6,10 @@
 //
 
 #pragma once
-#include <string>
-#include <CoreFoundation/CoreFoundation.h>
+#include <cstdint>
 #include "Il2Cpp.h"
 #include "../Globals.h"
+#include "../Utils/utf8/unchecked.h"
 
 /*
 This struct represents a C# string. Credits to caoyin.
@@ -47,18 +47,8 @@ struct Il2CppString : Il2CppObject
         ReturnVal.clear();
         if (length <= 0 || length > 10000) return;
         
-        CFStringRef cfString = CFStringCreateWithCharactersNoCopy(nullptr, reinterpret_cast<const UniChar*>(chars), length, kCFAllocatorNull);
-        if (cfString)
-        {
-            CFIndex lengthInBytes = CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8);
-            ReturnVal.resize(lengthInBytes);
-            
-            CFIndex utilizedByteCount = 0;
-            CFStringGetBytes(cfString, CFRangeMake(0, length), kCFStringEncodingUTF8, 0, false, (UInt8*)ReturnVal.data(), lengthInBytes, &utilizedByteCount);
-            
-            ReturnVal.resize(utilizedByteCount);
-            CFRelease(cfString);
-        }
+        ReturnVal.reserve(length * 1.5);
+        utf8::unchecked::utf16to8(chars, chars + length, std::back_inserter(ReturnVal));
     }
 };
 
