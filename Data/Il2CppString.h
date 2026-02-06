@@ -6,7 +6,8 @@
 //
 
 #pragma once
-#include <cstdint>
+#include <string>
+#include <CoreFoundation/CoreFoundation.h>
 #include "Il2Cpp.h"
 #include "../Globals.h"
 
@@ -44,32 +45,19 @@ struct Il2CppString : Il2CppObject
 
     void ToUtf8(std::string& ReturnVal) const {
         ReturnVal.clear();
-        // If length is massive or negative, the offset is definitely wrong
         if (length <= 0 || length > 10000) return;
-        ReturnVal.reserve(length * 3);
-        for (int i = 0; i < length; ++i) {
-            uint32_t codePoint = chars[i];
-            if (codePoint >= 0xD800 && codePoint <= 0xDBFF && i + 1 < length) {
-                uint32_t low = chars[i + 1];
-                if (low >= 0xDC00 && low <= 0xDFFF) {
-                    codePoint = ((codePoint - 0xD800) << 10) + (low - 0xDC00) + 0x10000;
-                    i++;
-                }
-            }
-            if (codePoint < 0x80) ReturnVal.push_back(static_cast<char>(codePoint));
-            else if (codePoint < 0x800) {
-                ReturnVal.push_back(static_cast<char>(0xC0 | (codePoint >> 6)));
-                ReturnVal.push_back(static_cast<char>(0x80 | (codePoint & 0x3F)));
-            } else if (codePoint < 0x10000) {
-                ReturnVal.push_back(static_cast<char>(0xE0 | (codePoint >> 12)));
-                ReturnVal.push_back(static_cast<char>(0x80 | ((codePoint >> 6) & 0x3F)));
-                ReturnVal.push_back(static_cast<char>(0x80 | (codePoint & 0x3F)));
-            } else {
-                ReturnVal.push_back(static_cast<char>(0xF0 | (codePoint >> 18)));
-                ReturnVal.push_back(static_cast<char>(0x80 | ((codePoint >> 12) & 0x3F)));
-                ReturnVal.push_back(static_cast<char>(0x80 | ((codePoint >> 6) & 0x3F)));
-                ReturnVal.push_back(static_cast<char>(0x80 | (codePoint & 0x3F)));
-            }
+        
+        CFStringRef cfString = CFStringCreateWithCharactersNoCopy(nullptr, reinterpret_cast<const UniChar*>(chars), length, kCFAllocatorNull);
+        if (cfString)
+        {
+            CFIndex lengthInBytes = CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8);
+            ReturnVal.resize(lengthInBytes);
+            
+            CFIndex utilizedByteCount = 0;
+            CFStringGetBytes(cfString, CFRangeMake(0, length), kCFStringEncodingUTF8, 0, false, (UInt8*)ReturnVal.data(), lengthInBytes, &utilizedByteCount);
+            
+            ReturnVal.resize(utilizedByteCount);
+            CFRelease(cfString);
         }
     }
 };
